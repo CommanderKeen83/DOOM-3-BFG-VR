@@ -15772,6 +15772,10 @@ void idPlayer::CalculateViewWeaponPosVR( idVec3 &origin, idMat3 &axis )
 			currentWeaponEnum == WEAPON_GRABBER
 		);
 
+		static bool wasTwoHanding = false;
+		commonVr->nearForegrip = false;
+		bool shouldTwoHand = false;
+
 		if ( isTwoHandWeapon && vr_twoHandedMode.GetInteger() > 0 && commonVr->currentFlashlightPosition != FLASH_HAND && !PDAfixed && !game->IsPDAOpen() && currentWeaponEnum != WEAPON_PDA )
 		{
 			int offHand = 1 - currentHand;
@@ -15796,13 +15800,35 @@ void idPlayer::CalculateViewWeaponPosVR( idVec3 &origin, idMat3 &axis )
 			idVec3 foregripWorldPos = weapOrigin + fgOffset.x * weapAxis[0] + fgOffset.y * weapAxis[1] + fgOffset.z * weapAxis[2];
 
 			float gripDistance = ( offViewOrigin - foregripWorldPos ).Length();
-			float triggerDistance = commonVr->isTwoHanding ? vr_twoHandedReleaseDistance.GetFloat() : vr_twoHandedGripDistance.GetFloat();
+			if ( gripDistance <= vr_twoHandedGripDistance.GetFloat() * 2.0f )
+			{
+				commonVr->nearForegrip = true;
+			}
 
-			bool gripButtonOk = ( vr_twoHandedMode.GetInteger() == 1 ) || ( commonVr->gripPressed[offHand] || ( ( commonVr->fingerPose[offHand] & POSE_GRIP ) != 0 ) );
+			bool offGripHeld = commonVr->gripPressed[offHand] || ( ( commonVr->fingerPose[offHand] & POSE_GRIP ) != 0 );
 
-			if ( gripDistance <= triggerDistance && gripButtonOk )
+			if ( wasTwoHanding )
+			{
+				// While gripped: maintain two-handed grip as long as the support grip button is held down
+				float totalHandDist = ( offViewOrigin - weapOrigin ).Length();
+				if ( offGripHeld && totalHandDist > 3.0f && totalHandDist < 45.0f )
+				{
+					shouldTwoHand = true;
+				}
+			}
+			else
+			{
+				// Not gripped: require support hand to be immediately at the foregrip AND grip button pressed
+				if ( gripDistance <= vr_twoHandedGripDistance.GetFloat() && offGripHeld )
+				{
+					shouldTwoHand = true;
+				}
+			}
+
+			if ( shouldTwoHand )
 			{
 				commonVr->isTwoHanding = true;
+				wasTwoHanding = true;
 
 				// Calculate forward aiming vector from main hand to off-hand
 				idVec3 aimForward = offViewOrigin - weapOrigin;
@@ -15829,6 +15855,16 @@ void idPlayer::CalculateViewWeaponPosVR( idVec3 &origin, idMat3 &axis )
 				commonVr->twoHandGripWorldAxis = weapAxis;
 				commonVr->twoHandGripWorldQuat = weapAxis.ToQuat();
 			}
+			else
+			{
+				commonVr->isTwoHanding = false;
+				wasTwoHanding = false;
+			}
+		}
+		else
+		{
+			commonVr->isTwoHanding = false;
+			wasTwoHanding = false;
 		}
 
 		//DebugCross( weapOrigin, weapAxis, colorYellow );

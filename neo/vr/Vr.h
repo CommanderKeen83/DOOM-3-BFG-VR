@@ -401,6 +401,7 @@ public:
 	idVec3				currentHandWorldPosition[2];
 	
 	bool				isTwoHanding;
+	bool				nearForegrip;
 	idVec3				twoHandGripWorldPos;
 	idMat3				twoHandGripWorldAxis;
 	idQuat				twoHandGripWorldQuat;

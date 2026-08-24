@@ -2289,8 +2289,15 @@ void idUsercmdGenLocal::Joystick( int deviceNum )
 				int joyButton = K_JOY1 + (action - J_ACTION1);
 				// vrLeftGrab = (value != 0);
 				idPlayer * player = gameLocal.GetLocalPlayer();
-				if ( !player || !player->GrabWorld( 1, (value != 0) ) )
+				int offHand = 1 - vr_weaponHand.GetInteger();
+				if ( offHand == HAND_LEFT && ( commonVr->isTwoHanding || commonVr->nearForegrip ) )
+				{
+					// Consumed by two-handed weapon gripping - do not trigger bound action (e.g. crouch)
+				}
+				else if ( !player || !player->GrabWorld( 1, (value != 0) ) )
+				{
 					Key( joyButton, ( value != 0 ) );
+				}
 			}
 			// right grip button
 			else if( action == J_RT_GRIP || action == J_RV_GRIP )
@@ -2298,8 +2305,15 @@ void idUsercmdGenLocal::Joystick( int deviceNum )
 				int joyButton = K_JOY1 + (action - J_ACTION1);
 				// vrRightGrab = (value != 0);
 				idPlayer * player = gameLocal.GetLocalPlayer();
-				if ( !player || !player->GrabWorld( 0, (value != 0) ) )
+				int offHand = 1 - vr_weaponHand.GetInteger();
+				if ( offHand == HAND_RIGHT && ( commonVr->isTwoHanding || commonVr->nearForegrip ) )
+				{
+					// Consumed by two-handed weapon gripping - do not trigger bound action (e.g. crouch)
+				}
+				else if ( !player || !player->GrabWorld( 0, (value != 0) ) )
+				{
 					Key( joyButton, ( value != 0 ) );
+				}
 			}
 			else if( action >= J_ACTION1 && action <= J_ACTION_MAX )
 			{

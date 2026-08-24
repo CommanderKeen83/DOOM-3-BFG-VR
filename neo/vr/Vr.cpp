@@ -456,6 +456,7 @@ iVr::iVr()
 	currentHandWorldPosition[1] = vec3_zero;
 
 	isTwoHanding = false;
+	nearForegrip = false;
 	twoHandGripWorldPos = vec3_zero;
 	twoHandGripWorldAxis = mat3_identity;
 	twoHandGripWorldQuat = idQuat( 0.0f, 0.0f, 0.0f, 1.0f );
