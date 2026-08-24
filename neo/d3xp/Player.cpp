@@ -6441,10 +6441,6 @@ void idPlayer::NextWeapon()
 		{
 			continue;
 		}
-		if( w == holsteredWeapon && holsteredWeapon != weapon_fists )
-		{
-			continue;
-		}
 		const char* weap = spawnArgs.GetString( va( "def_weapon%d", w ) );
 		if( !spawnArgs.GetBool( va( "weapon%d_cycle", w ) ) )
 		{
@@ -6502,10 +6498,6 @@ void idPlayer::PrevWeapon()
 			break;
 		}
 		if( ( inventory.weapons & ( 1 << w ) ) == 0 )
-		{
-			continue;
-		}
-		if( w == holsteredWeapon && holsteredWeapon != weapon_fists )
 		{
 			continue;
 		}
