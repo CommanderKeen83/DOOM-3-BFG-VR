@@ -684,6 +684,7 @@ public:
 	void					CalculateWaist();
 	void					CalculateLeftHand();
 	void					CalculateRightHand();
+	void					UpdateFlashlightHolster();
 	
 	void					AddChatMessage( int index, int alpha, const idStr& message );
 	void					UpdateSpectatingText();

@@ -100,7 +100,7 @@ slot_t slots[ SLOT_COUNT ] = {
 	{ idVec3( 0, -10, -4 ), 9.0f * 9.0f },
 	{ idVec3( -9, -4, 4 ), 9.0f * 9.0f },
 	{ idVec3( -9, -4,-waistZ - neckOffset.z ), 9.0f * 9.0f },
-	{ idVec3( 4, 8, -waistZ + 2 ), 9.0f * 9.0f },
+	{ idVec3( 5, 0, -waistZ + 2 ), 9.5f * 9.5f },
 	{ idVec3( -neckOffset.x, 0, -waistZ - neckOffset.z + 7 ), 9.0f * 9.0f },
 };
 
@@ -6136,14 +6136,12 @@ bool idPlayer::OtherHandImpulseSlot()
 	if( otherHandSlot == SLOT_FLASHLIGHT_SHOULDER && !commonVr->PDAforced && !objectiveSystemOpen
 		&& flashlight.IsValid() && !spectating && weaponEnabled && !hiddenWeapon && !gameLocal.world->spawnArgs.GetBool("no_Weapons") )
 	{
-		// swap flashlight between body and hand
-		if (vr_flashlightMode.GetInteger() == FLASH_BODY)
+		// Grab flashlight from chest to hand and turn it on
+		if ( vr_flashlightMode.GetInteger() != FLASH_HAND )
 		{
-			vr_flashlightMode.SetInteger(FLASH_HAND);
-		}
-		else if (vr_flashlightMode.GetInteger() == FLASH_HAND)
-		{
-			vr_flashlightMode.SetInteger(FLASH_BODY);
+			vr_flashlightMode.SetInteger( FLASH_HAND );
+			FlashlightOn();
+			SetControllerShake( vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2, vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2 );
 		}
 		return true;
 	}
@@ -16706,6 +16704,7 @@ void idPlayer::CalculateFirstPersonView()
 		CalculateLeftHand();
 		CalculateRightHand();
 		CalculateWaist();
+		UpdateFlashlightHolster();
 	}
 }
 
@@ -16841,6 +16840,38 @@ void idPlayer::CalculateRightHand()
 		weaponHandSlot = slot;
 	else
 		otherHandSlot = slot;
+}
+
+/*
+==================
+idPlayer::UpdateFlashlightHolster
+Handles holstering the flashlight back to the chest when the support hand is at the chest without grip pressed
+==================
+*/
+void idPlayer::UpdateFlashlightHolster()
+{
+	if ( !commonVr->hasHMD || vr_slotDisable.GetBool() || !flashlight.IsValid() || spectating || !weaponEnabled || hiddenWeapon || gameLocal.world->spawnArgs.GetBool( "no_Weapons" ) )
+	{
+		return;
+	}
+
+	int offHand = 1 - vr_weaponHand.GetInteger();
+	bool offGrip = commonVr->gripPressed[offHand] || ( ( commonVr->fingerPose[offHand] & POSE_GRIP ) != 0 );
+
+	if ( otherHandSlot == SLOT_FLASHLIGHT_SHOULDER && !commonVr->PDAforced && !objectiveSystemOpen )
+	{
+		if ( vr_flashlightMode.GetInteger() == FLASH_HAND )
+		{
+			// When holding flashlight in hand and bringing it to chest:
+			// If grip button is not held (released), holster and turn off flashlight
+			if ( !offGrip )
+			{
+				vr_flashlightMode.SetInteger( FLASH_BODY );
+				FlashlightOff();
+				SetControllerShake( vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2, vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2 );
+			}
+		}
+	}
 }
 
 /*
