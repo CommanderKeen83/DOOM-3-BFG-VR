@@ -15751,6 +15751,7 @@ void idPlayer::CalculateViewWeaponPosVR( idVec3 &origin, idMat3 &axis )
 		// Two-Handed Weapon Aiming & Gripping
 		commonVr->isTwoHanding = false;
 		bool isTwoHandWeapon = (
+			currentWeaponEnum == WEAPON_CHAINSAW ||
 			currentWeaponEnum == WEAPON_SHOTGUN ||
 			currentWeaponEnum == WEAPON_SHOTGUN_DOUBLE ||
 			currentWeaponEnum == WEAPON_SHOTGUN_DOUBLE_MP ||
