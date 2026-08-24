@@ -100,7 +100,7 @@ const idVec3 foregripOffsets[int( WEAPON_NUM_WEAPONS )] = {	idVec3( 0.0f, 0.0f, 
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_CHAINSAW
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_PISTOL
 															idVec3( 15.0f, 0.0f, -1.0f ),		// WEAPON_SHOTGUN
-															idVec3( 14.5f, 0.0f, -1.5f ),		// WEAPON_MACHINEGUN
+															idVec3( 8.5f, 0.0f, -1.5f ),		// WEAPON_MACHINEGUN
 															idVec3( 7.0f, 0.0f, -3.5f ),		// WEAPON_CHAINGUN
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_HANDGRENADE
 															idVec3( 14.5f, 0.0f, -1.5f ),		// WEAPON_PLASMAGUN
