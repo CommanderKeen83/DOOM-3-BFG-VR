@@ -93,11 +93,12 @@ The generated executable will be placed in `build/Release/Doom3BFGVR.exe`.
    Ensure SteamVR is running and your headset and motion controllers are connected.
 
 3. **Launch the Game:**
-   Run the compiled executable with the `fs_basepath` parameter pointing to your game directory:
-   ```powershell
-   .\build\Release\Doom3BFGVR.exe +set fs_basepath "C:\Program Files (x86)\Steam\steamapps\common\DOOM 3 BFG Edition"
-   ```
-   *(Or copy `Doom3BFGVR.exe` into the DOOM 3 BFG Edition directory and launch it directly).*
+   Make sure runtime DLLs (FFmpeg, OpenAL, etc.) are present next to `Doom3BFGVR.exe`. You can either:
+   - **Option A (Recommended):** Copy your compiled `build\Release\Doom3BFGVR.exe` directly into your DOOM 3 BFG Edition directory (where all DLLs and base game files already exist) and run it.
+   - **Option B:** Copy the DLLs from your DOOM 3 BFG Edition directory into `build\Release\` and run:
+     ```powershell
+     .\build\Release\Doom3BFGVR.exe +set fs_basepath "C:\Program Files (x86)\Steam\steamapps\common\DOOM 3 BFG Edition"
+     ```
 
 ---
 
@@ -105,6 +106,7 @@ The generated executable will be placed in `build/Release/Doom3BFGVR.exe`.
 
 | Issue | Cause | Solution |
 | :--- | :--- | :--- |
+| Game silently exits immediately when launched | Missing runtime DLLs (`avcodec-58.dll`, `swscale-5.dll`, `OpenAL32.dll`, etc.). | Copy the runtime DLLs to `build\Release\` or copy `Doom3BFGVR.exe` directly into your DOOM 3 BFG Edition folder. |
 | `Could NOT find DirectX (missing: DirectX_INCLUDE_DIR...)` | DirectX SDK (June 2010) is not installed or terminal hasn't refreshed environment variables. | Install DirectX SDK (June 2010) and restart the terminal so `%DXSDK_DIR%` is recognized. |
 | `Cannot open include file: '../libs/LibOVR/Include/OVR_CAPI.h'` | `OVR` option is enabled without LibOVR SDK installed. | Set `OVR` to `OFF` in `neo/CMakeLists.txt` or configure with `-DOVR=OFF`. |
 | `Compatibility with CMake < 3.5 has been removed` | Modern CMake requires `cmake_minimum_required(VERSION 3.5)`. | Ensure `neo/CMakeLists.txt` specifies `cmake_minimum_required(VERSION 3.5)`. |
