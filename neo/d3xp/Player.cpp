@@ -15786,8 +15786,12 @@ void idPlayer::CalculateViewWeaponPosVR( idVec3 &origin, idMat3 &axis )
 			offViewOrigin += offViewAxis[0] * headPositionDelta.x + offViewAxis[1] * headPositionDelta.y + offViewAxis[2] * headPositionDelta.z;
 			offViewOrigin += offMotionPos * offViewAxis;
 
-			// Foregrip anchor in weapon coordinates
+			// Foregrip anchor in weapon coordinates (mirrors lateral offset for opposite handedness)
 			idVec3 fgOffset = foregripOffsets[int( currentWeaponEnum )];
+			if ( currentHand == 0 )
+			{
+				fgOffset.y = -fgOffset.y;
+			}
 			idVec3 foregripWorldPos = weapOrigin + fgOffset.x * weapAxis[0] + fgOffset.y * weapAxis[1] + fgOffset.z * weapAxis[2];
 
 			float gripDistance = ( offViewOrigin - foregripWorldPos ).Length();
