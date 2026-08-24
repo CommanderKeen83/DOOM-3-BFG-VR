@@ -37,8 +37,8 @@ idCVar vr_weaponHand( "vr_weaponHand", "0", CVAR_INTEGER | CVAR_ARCHIVE | CVAR_G
 
 // Two-handed weapon aiming CVars
 idCVar vr_twoHandedMode( "vr_twoHandedMode", "1", CVAR_INTEGER | CVAR_ARCHIVE | CVAR_GAME, "Enable two-handed weapon gripping.\n 0 = Disabled\n 1 = Proximity\n 2 = Grip Button Required\n", 0, 2 );
-idCVar vr_twoHandedGripDistance( "vr_twoHandedGripDistance", "10.0", CVAR_FLOAT | CVAR_ARCHIVE | CVAR_GAME, "Distance in inches to engage two-handed grip." );
-idCVar vr_twoHandedReleaseDistance( "vr_twoHandedReleaseDistance", "14.0", CVAR_FLOAT | CVAR_ARCHIVE | CVAR_GAME, "Distance in inches to release two-handed grip." );
+idCVar vr_twoHandedGripDistance( "vr_twoHandedGripDistance", "2.5", CVAR_FLOAT | CVAR_ARCHIVE | CVAR_GAME, "Distance in inches to engage two-handed grip (approx 6 cm)." );
+idCVar vr_twoHandedReleaseDistance( "vr_twoHandedReleaseDistance", "5.0", CVAR_FLOAT | CVAR_ARCHIVE | CVAR_GAME, "Distance in inches to release two-handed grip (approx 12 cm)." );
 idCVar vr_twoHandedRecoilScale( "vr_twoHandedRecoilScale", "0.6", CVAR_FLOAT | CVAR_ARCHIVE | CVAR_GAME, "Recoil multiplier when using two-handed grip." );
 
 //flashlight cvars

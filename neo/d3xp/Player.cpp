@@ -16361,7 +16361,7 @@ void idPlayer::CalculateViewFlashPos( idVec3 &origin, idMat3 &axis, idVec3 flash
 		// If two-handed gripping is active and flashlight is not in hand, snap off-hand model to weapon foregrip
 		if ( commonVr->isTwoHanding && flashMode != FLASH_HAND )
 		{
-			SetHandIKPos( currentHand, commonVr->twoHandGripWorldPos, commonVr->twoHandGripWorldAxis, commonVr->twoHandGripWorldQuat, false );
+			SetHandIKPos( currentHand, commonVr->twoHandGripWorldPos, commonVr->twoHandGripWorldAxis, motionRotation, false );
 			return;
 		}
 
