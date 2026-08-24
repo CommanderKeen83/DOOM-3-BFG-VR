@@ -15821,8 +15821,9 @@ void idPlayer::CalculateViewWeaponPosVR( idVec3 &origin, idMat3 &axis )
 				commonVr->isTwoHanding = true;
 				wasTwoHanding = true;
 
-				// Calculate forward aiming vector from main hand to off-hand
-				idVec3 aimForward = offViewOrigin - weapOrigin;
+				// Calculate forward aiming vector taking into account the foregrip's local Y/Z offsets
+				idVec3 handAimTarget = offViewOrigin - ( fgOffset.y * weapAxis[1] + fgOffset.z * weapAxis[2] );
+				idVec3 aimForward = handAimTarget - weapOrigin;
 				float aimDist = aimForward.Normalize();
 
 				if ( aimDist > 1.0f )
