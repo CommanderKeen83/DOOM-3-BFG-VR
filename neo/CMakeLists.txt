@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(Doom3BFGVR)
@@ -19,7 +19,7 @@ option(FFMPEG
 		"Use FMPEG to render Bink videos" ON)
 
 option(OVR
-		"Use Oculus VR's LibOVR SDK" ON)
+		"Use Oculus VR's LibOVR SDK" OFF)
 
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
