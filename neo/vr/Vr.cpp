@@ -35,6 +35,12 @@ idCVar vr_normalViewHeight( "vr_normalViewHeight", "73", CVAR_FLOAT | CVAR_ARCHI
 
 idCVar vr_weaponHand( "vr_weaponHand", "0", CVAR_INTEGER | CVAR_ARCHIVE | CVAR_GAME, "Which hand holds weapon.\n 0 = Right hand\n 1 = Left Hand\n", 0, 1 );
 
+// Two-handed weapon aiming CVars
+idCVar vr_twoHandedMode( "vr_twoHandedMode", "1", CVAR_INTEGER | CVAR_ARCHIVE | CVAR_GAME, "Enable two-handed weapon gripping.\n 0 = Disabled\n 1 = Proximity\n 2 = Grip Button Required\n", 0, 2 );
+idCVar vr_twoHandedGripDistance( "vr_twoHandedGripDistance", "10.0", CVAR_FLOAT | CVAR_ARCHIVE | CVAR_GAME, "Distance in inches to engage two-handed grip." );
+idCVar vr_twoHandedReleaseDistance( "vr_twoHandedReleaseDistance", "14.0", CVAR_FLOAT | CVAR_ARCHIVE | CVAR_GAME, "Distance in inches to release two-handed grip." );
+idCVar vr_twoHandedRecoilScale( "vr_twoHandedRecoilScale", "0.6", CVAR_FLOAT | CVAR_ARCHIVE | CVAR_GAME, "Recoil multiplier when using two-handed grip." );
+
 //flashlight cvars
 
 idCVar vr_flashlightMode( "vr_flashlightMode", "3", CVAR_INTEGER | CVAR_ARCHIVE | CVAR_GAME, "Flashlight mount.\n0 = Body\n1 = Head\n2 = Gun\n3= Hand ( if motion controls available.)" );
@@ -448,6 +454,13 @@ iVr::iVr()
 
 	currentHandWorldPosition[0] = vec3_zero;
 	currentHandWorldPosition[1] = vec3_zero;
+
+	isTwoHanding = false;
+	twoHandGripWorldPos = vec3_zero;
+	twoHandGripWorldAxis = mat3_identity;
+	twoHandGripWorldQuat = idQuat( 0.0f, 0.0f, 0.0f, 1.0f );
+	gripPressed[0] = false;
+	gripPressed[1] = false;
 
 
 	

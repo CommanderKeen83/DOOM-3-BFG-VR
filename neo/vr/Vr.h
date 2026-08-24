@@ -400,7 +400,11 @@ public:
 
 	idVec3				currentHandWorldPosition[2];
 	
-	
+	bool				isTwoHanding;
+	idVec3				twoHandGripWorldPos;
+	idMat3				twoHandGripWorldAxis;
+	idQuat				twoHandGripWorldQuat;
+	bool				gripPressed[2];
 	
 	// clip stuff
 	idClipModel*		bodyClip;
@@ -422,6 +426,12 @@ extern idCVar	vr_manualIPDEnable;
 extern idCVar	vr_manualIPD;
 extern idCVar	vr_manualHeight;
 extern idCVar	vr_useFloorHeight;
+
+// Two-handed weapon aiming CVars
+extern idCVar	vr_twoHandedMode;
+extern idCVar	vr_twoHandedGripDistance;
+extern idCVar	vr_twoHandedReleaseDistance;
+extern idCVar	vr_twoHandedRecoilScale;
 
 //extern idCVar	vr_viewModelArms;
 extern idCVar	vr_wristStatMon;

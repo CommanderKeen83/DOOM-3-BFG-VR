@@ -94,6 +94,26 @@ const idVec3 flashOffsets[int( WEAPON_NUM_WEAPONS )] = {	idVec3( 0.0f, 0.0f, 0.0
 															idVec3( 0.0f, 0.0f, 0.0f )			// WEAPON_PDA
 };
 
+// Foregrip anchor offsets for two-handed weapons (x = forward along barrel, y = left/right, z = up/down)
+const idVec3 foregripOffsets[int( WEAPON_NUM_WEAPONS )] = {	idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_NONE
+															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_FISTS
+															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_CHAINSAW
+															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_PISTOL
+															idVec3( 14.0f, -0.5f, -2.0f ),		// WEAPON_SHOTGUN
+															idVec3( 13.0f, -0.5f, -2.0f ),		// WEAPON_MACHINEGUN
+															idVec3( 15.0f, -1.0f, 3.0f ),		// WEAPON_CHAINGUN
+															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_HANDGRENADE
+															idVec3( 12.0f, -0.5f, -2.0f ),		// WEAPON_PLASMAGUN
+															idVec3( 12.0f, 0.0f, -3.0f ),		// WEAPON_ROCKETLAUNCHER
+															idVec3( 12.0f, -1.0f, 2.5f ),		// WEAPON_BFG
+															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_SOULCUBE
+															idVec3( 12.0f, 0.0f, -2.0f ),		// WEAPON_SHOTGUN_DOUBLE
+															idVec3( 12.0f, 0.0f, -2.0f ),		// WEAPON_SHOTGUN_DOUBLE_MP
+															idVec3( 10.0f, -0.5f, -2.0f ),		// WEAPON_GRABBER
+															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_ARTIFACT
+															idVec3( 0.0f, 0.0f, 0.0f )			// WEAPON_PDA
+};
+
 
 typedef int ammo_t;
 static const int AMMO_NUMTYPES = 16;

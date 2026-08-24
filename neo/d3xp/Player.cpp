@@ -15758,6 +15758,79 @@ void idPlayer::CalculateViewWeaponPosVR( idVec3 &origin, idMat3 &axis )
 			weapAxis = idAngles( 0.0f ,viewAngles.yaw , 0.0f).ToMat3();
 		}
 
+		// Two-Handed Weapon Aiming & Gripping
+		commonVr->isTwoHanding = false;
+		bool isTwoHandWeapon = (
+			currentWeaponEnum == WEAPON_SHOTGUN ||
+			currentWeaponEnum == WEAPON_SHOTGUN_DOUBLE ||
+			currentWeaponEnum == WEAPON_SHOTGUN_DOUBLE_MP ||
+			currentWeaponEnum == WEAPON_MACHINEGUN ||
+			currentWeaponEnum == WEAPON_CHAINGUN ||
+			currentWeaponEnum == WEAPON_PLASMAGUN ||
+			currentWeaponEnum == WEAPON_ROCKETLAUNCHER ||
+			currentWeaponEnum == WEAPON_BFG ||
+			currentWeaponEnum == WEAPON_GRABBER
+		);
+
+		if ( isTwoHandWeapon && vr_twoHandedMode.GetInteger() > 0 && commonVr->currentFlashlightPosition != FLASH_HAND && !PDAfixed && !game->IsPDAOpen() && currentWeaponEnum != WEAPON_PDA )
+		{
+			int offHand = 1 - currentHand;
+			idVec3 offMotionPos = vec3_zero;
+			idQuat offMotionRot;
+			commonVr->MotionControlGetHand( offHand, offMotionPos, offMotionRot );
+
+			idQuat offFlashPitch = idAngles( vr_motionFlashPitchAdj.GetFloat(), 0.0f, 0.0f ).ToQuat();
+			offMotionRot = offFlashPitch * offMotionRot;
+
+			idVec3 offViewOrigin = vec3_zero;
+			idMat3 offViewAxis = mat3_identity;
+			GetViewPos( offViewOrigin, offViewAxis );
+			offViewOrigin += commonVr->leanOffset;
+
+			offViewAxis = idAngles( 0.0f, offViewAxis.ToAngles().yaw - commonVr->bodyYawOffset, 0.0f ).ToMat3();
+			offViewOrigin += offViewAxis[0] * headPositionDelta.x + offViewAxis[1] * headPositionDelta.y + offViewAxis[2] * headPositionDelta.z;
+			offViewOrigin += offMotionPos * offViewAxis;
+
+			// Foregrip anchor in weapon coordinates
+			idVec3 fgOffset = foregripOffsets[int( currentWeaponEnum )];
+			idVec3 foregripWorldPos = weapOrigin + fgOffset.x * weapAxis[0] + fgOffset.y * weapAxis[1] + fgOffset.z * weapAxis[2];
+
+			float gripDistance = ( offViewOrigin - foregripWorldPos ).Length();
+			float triggerDistance = commonVr->isTwoHanding ? vr_twoHandedReleaseDistance.GetFloat() : vr_twoHandedGripDistance.GetFloat();
+
+			bool gripButtonOk = ( vr_twoHandedMode.GetInteger() == 1 ) || ( commonVr->gripPressed[offHand] || ( ( commonVr->fingerPose[offHand] & POSE_GRIP ) != 0 ) );
+
+			if ( gripDistance <= triggerDistance && gripButtonOk )
+			{
+				commonVr->isTwoHanding = true;
+
+				// Calculate forward aiming vector from main hand to off-hand
+				idVec3 aimForward = offViewOrigin - weapOrigin;
+				float aimDist = aimForward.Normalize();
+
+				if ( aimDist > 1.0f )
+				{
+					// Orthogonalize up vector against aimForward to maintain natural roll
+					idVec3 aimUp = weapAxis[2] - ( weapAxis[2] * aimForward ) * aimForward;
+					if ( aimUp.Normalize() < 0.001f )
+					{
+						aimUp = weapAxis[2];
+					}
+					idVec3 aimLeft = aimUp.Cross( aimForward );
+					aimLeft.Normalize();
+
+					weapAxis[0] = aimForward;
+					weapAxis[1] = aimLeft;
+					weapAxis[2] = aimUp;
+				}
+
+				// Store foregrip snap target for off-hand rendering
+				commonVr->twoHandGripWorldPos = weapOrigin + fgOffset.x * weapAxis[0] + fgOffset.y * weapAxis[1] + fgOffset.z * weapAxis[2];
+				commonVr->twoHandGripWorldAxis = weapAxis;
+				commonVr->twoHandGripWorldQuat = weapAxis.ToQuat();
+			}
+		}
+
 		//DebugCross( weapOrigin, weapAxis, colorYellow );
 
 		if ( currentWeaponEnum != WEAPON_PDA )
@@ -16284,6 +16357,13 @@ void idPlayer::CalculateViewFlashPos( idVec3 &origin, idMat3 &axis, idVec3 flash
 		motRot.Normalize180();
 		motionRotation = motRot.ToQuat();
 		
+
+		// If two-handed gripping is active and flashlight is not in hand, snap off-hand model to weapon foregrip
+		if ( commonVr->isTwoHanding && flashMode != FLASH_HAND )
+		{
+			SetHandIKPos( currentHand, commonVr->twoHandGripWorldPos, commonVr->twoHandGripWorldAxis, commonVr->twoHandGripWorldQuat, false );
+			return;
+		}
 
 		// Koz fixme:
 		// Koz hack , the alignment isn't quite right, so do a quick hack here so the hand and flash align 

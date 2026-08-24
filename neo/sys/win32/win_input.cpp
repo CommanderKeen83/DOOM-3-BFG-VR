@@ -1472,7 +1472,8 @@ int idJoystickWin32::PollInputEvents( int inputDeviceNum )
 							if ( (button & ButtonMaskFromId( vr::k_EButton_Grip )) != (oldButton[0] & ButtonMaskFromId( vr::k_EButton_Grip )) )
 							{
 								//common->Printf( "inputDeviceNum %d L Grip\n", inputDeviceNum );
-								PostInputEvent( inputDeviceNum, J_LV_GRIP, (button & ButtonMaskFromId( vr::k_EButton_Grip )) > 0 );
+								commonVr->gripPressed[HAND_LEFT] = (button & ButtonMaskFromId( vr::k_EButton_Grip )) > 0;
+								PostInputEvent( inputDeviceNum, J_LV_GRIP, commonVr->gripPressed[HAND_LEFT] );
 							}
 
 							if ( (button & ButtonMaskFromId( vr::k_EButton_SteamVR_Trigger )) != (oldButton[0] & ButtonMaskFromId( vr::k_EButton_SteamVR_Trigger )) )
@@ -1688,7 +1689,8 @@ int idJoystickWin32::PollInputEvents( int inputDeviceNum )
 							if ( (button & ButtonMaskFromId( vr::k_EButton_Grip )) != (oldButton[1] & ButtonMaskFromId( vr::k_EButton_Grip )) )
 							{
 								//common->Printf( "inputDeviceNum %d R Grip\n", inputDeviceNum );
-								PostInputEvent(inputDeviceNum, J_RV_GRIP, (button & ButtonMaskFromId(vr::k_EButton_Grip)) > 0);
+								commonVr->gripPressed[HAND_RIGHT] = (button & ButtonMaskFromId(vr::k_EButton_Grip)) > 0;
+								PostInputEvent(inputDeviceNum, J_RV_GRIP, commonVr->gripPressed[HAND_RIGHT]);
 							}
 
 							if ( (button & ButtonMaskFromId( vr::k_EButton_SteamVR_Trigger )) != (oldButton[1] & ButtonMaskFromId( vr::k_EButton_SteamVR_Trigger )) )
