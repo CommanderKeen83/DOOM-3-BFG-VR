@@ -17832,7 +17832,7 @@ void idPlayer::Event_GetFlashHandState()
 	// 3 = normal weapon idle hand anim - used for holding PDA.
 			
 	
-	int flashHand = 1;
+	int flashHand = 0;
 	
 	if ( weapon->IdentifyWeapon() == WEAPON_PDA )
 	{
@@ -17842,11 +17842,17 @@ void idPlayer::Event_GetFlashHandState()
 	{
 		flashHand = 0;
 	}
-		 
-	//else if ( commonVr->currentFlashlightPosition == FLASH_HAND && !spectating && weaponEnabled &&!hiddenWeapon && !gameLocal.world->spawnArgs.GetBool( "no_Weapons" ) )
-	else if ( commonVr->currentFlashlightPosition == FLASH_HAND ) //&& !spectating && weaponEnabled &&!hiddenWeapon && !gameLocal.world->spawnArgs.GetBool( "no_Weapons" ) )
+	else if ( commonVr->currentFlashlightPosition == FLASH_HAND )
 	{
 		flashHand = 2;
+	}
+	else if ( commonVr->isTwoHanding )
+	{
+		flashHand = 2; // holding foregrip pose
+	}
+	else
+	{
+		flashHand = 0; // open relaxed hand when empty
 	}
 	
 	if ( flashHand <= 1 && vr_useHandPoses.GetBool() )

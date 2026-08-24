@@ -99,17 +99,17 @@ const idVec3 foregripOffsets[int( WEAPON_NUM_WEAPONS )] = {	idVec3( 0.0f, 0.0f, 
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_FISTS
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_CHAINSAW
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_PISTOL
-															idVec3( 10.5f, 0.0f, -1.0f ),		// WEAPON_SHOTGUN
-															idVec3( 10.0f, 0.0f, -1.5f ),		// WEAPON_MACHINEGUN
-															idVec3( 12.0f, -0.5f, 2.5f ),		// WEAPON_CHAINGUN
+															idVec3( 13.5f, 0.0f, -1.0f ),		// WEAPON_SHOTGUN
+															idVec3( 13.0f, 0.0f, -1.5f ),		// WEAPON_MACHINEGUN
+															idVec3( 15.0f, -0.5f, 2.5f ),		// WEAPON_CHAINGUN
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_HANDGRENADE
-															idVec3( 10.0f, 0.0f, -1.5f ),		// WEAPON_PLASMAGUN
-															idVec3( 10.0f, 0.0f, -2.0f ),		// WEAPON_ROCKETLAUNCHER
-															idVec3( 10.0f, -0.5f, 2.0f ),		// WEAPON_BFG
+															idVec3( 13.0f, 0.0f, -1.5f ),		// WEAPON_PLASMAGUN
+															idVec3( 13.0f, 0.0f, -2.0f ),		// WEAPON_ROCKETLAUNCHER
+															idVec3( 13.0f, -0.5f, 2.0f ),		// WEAPON_BFG
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_SOULCUBE
-															idVec3( 9.0f, 0.0f, -1.5f ),		// WEAPON_SHOTGUN_DOUBLE
-															idVec3( 9.0f, 0.0f, -1.5f ),		// WEAPON_SHOTGUN_DOUBLE_MP
-															idVec3( 8.0f, 0.0f, -1.5f ),		// WEAPON_GRABBER
+															idVec3( 12.0f, 0.0f, -1.5f ),		// WEAPON_SHOTGUN_DOUBLE
+															idVec3( 12.0f, 0.0f, -1.5f ),		// WEAPON_SHOTGUN_DOUBLE_MP
+															idVec3( 11.0f, 0.0f, -1.5f ),		// WEAPON_GRABBER
 															idVec3( 0.0f, 0.0f, 0.0f ),			// WEAPON_ARTIFACT
 															idVec3( 0.0f, 0.0f, 0.0f )			// WEAPON_PDA
 };
