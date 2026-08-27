@@ -6138,21 +6138,11 @@ bool idPlayer::HandleShoulderSlot( int slotIndex )
 	int& storedSlotWeapon = ( slotIndex == SLOT_SHOULDER_LEFT ) ? shoulderWeaponLeft : shoulderWeaponRight;
 	int curWeapon = currentWeapon;
 
-	// If player is holding an eligible primary long weapon: store it in this shoulder slot!
+	// If player is holding an eligible primary long weapon: store it in this shoulder slot and free up the hand!
 	if ( IsLongWeapon( curWeapon ) )
 	{
-		int oldStored = storedSlotWeapon;
 		storedSlotWeapon = curWeapon;
-
-		// If a different valid long weapon was stored in this slot and player has it, switch to it; otherwise switch to fists
-		if ( oldStored > 0 && oldStored != curWeapon && ( inventory.weapons & ( 1 << oldStored ) ) != 0 )
-		{
-			SelectWeapon( oldStored, false, true );
-		}
-		else
-		{
-			SelectWeapon( weapon_fists, false, true );
-		}
+		SelectWeapon( weapon_fists, false, true );
 
 		SetControllerShake( vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2, vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2 );
 		return true;
