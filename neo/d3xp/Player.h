@@ -264,8 +264,8 @@ enum slotIndex_t
 	SLOT_NONE = -1,
 	SLOT_PDA_HIP,
 	SLOT_WEAPON_HIP,
-	SLOT_WEAPON_BACK_BOTTOM,
-	SLOT_WEAPON_BACK_TOP,
+	SLOT_SHOULDER_LEFT,
+	SLOT_SHOULDER_RIGHT,
 	SLOT_FLASHLIGHT_SHOULDER,
 	SLOT_FLASHLIGHT_HEAD,
 	SLOT_COUNT
@@ -325,6 +325,8 @@ public:
 	idMat3					holsterAxis;
 	int						holsteredWeapon, extraHolsteredWeapon;
 	const char*				extraHolsteredWeaponModel;
+	int						shoulderWeaponLeft;
+	int						shoulderWeaponRight;
 
 	renderEntity_t			hudEntity; // Koz add a model to place the hud into the world
 	qhandle_t				hudHandle;
@@ -766,6 +768,8 @@ public:
 	bool					OtherHandImpulseSlot();
 	bool					WeaponHandImpulseSlot();
 	bool					GrabWorld( int hand, bool pressed ); // 0 = right hand, 1 = left hand; true if pressed, false if released; returns true if handled as grab
+	bool					IsLongWeapon( int weaponNum ) const;
+	bool					HandleShoulderSlot( int slotIndex );
 	
 	int						SlotForWeapon( const char* weaponName );
 	void					Reload();

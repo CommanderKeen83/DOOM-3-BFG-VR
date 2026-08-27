@@ -96,12 +96,12 @@ idCVar vr_slotDur( "vr_slotDur", "18", CVAR_INTEGER | CVAR_ARCHIVE, "slot vibrat
 idCVar vr_slotDisable( "vr_slotDisable", "0", CVAR_BOOL | CVAR_ARCHIVE, "slot disable" );
 
 slot_t slots[ SLOT_COUNT ] = {
-	{ idVec3( 0, 10, -4 ), 9.0f * 9.0f },
-	{ idVec3( 0, -10, -4 ), 9.0f * 9.0f },
-	{ idVec3( -9, -4, 4 ), 9.0f * 9.0f },
-	{ idVec3( -9, -4,-waistZ - neckOffset.z ), 9.0f * 9.0f },
-	{ idVec3( 5, 0, -waistZ + 2 ), 9.5f * 9.5f },
-	{ idVec3( -neckOffset.x, 0, -waistZ - neckOffset.z + 7 ), 9.0f * 9.0f },
+	{ idVec3( 0, 10, -4 ), 9.0f * 9.0f },										// SLOT_PDA_HIP
+	{ idVec3( 0, -10, -4 ), 9.0f * 9.0f },										// SLOT_WEAPON_HIP
+	{ idVec3( -8, 7, -waistZ - neckOffset.z + 4 ), 10.0f * 10.0f },				// SLOT_SHOULDER_LEFT
+	{ idVec3( -8, -7, -waistZ - neckOffset.z + 4 ), 10.0f * 10.0f },				// SLOT_SHOULDER_RIGHT
+	{ idVec3( 5, 0, -waistZ + 2 ), 9.5f * 9.5f },								// SLOT_FLASHLIGHT_SHOULDER (Chest)
+	{ idVec3( -neckOffset.x, 0, -waistZ - neckOffset.z + 7 ), 9.0f * 9.0f },	// SLOT_FLASHLIGHT_HEAD
 };
 
 idAngles pdaAngle1( 0, -90, 0);
@@ -1966,6 +1966,8 @@ void idPlayer::Init()
 	holsteredWeapon = weapon_fists;
 	extraHolsteredWeapon = weapon_fists;
 	extraHolsteredWeaponModel = NULL;
+	shoulderWeaponLeft = -1;
+	shoulderWeaponRight = -1;
 	
 	// restore persistent data
 	RestorePersistantInfo();
@@ -3065,8 +3067,8 @@ void idPlayer::Save( idSaveGame* savefile ) const
 	savefile->WriteInt( (int) holsterModelDefHandle );
 	
 	
-	savefile->WriteFloat( 0 );
-	savefile->WriteFloat( 0 );
+	savefile->WriteFloat( (float) shoulderWeaponLeft );
+	savefile->WriteFloat( (float) shoulderWeaponRight );
 	savefile->WriteFloat( 0 );
 	savefile->WriteFloat( 0 );
 	savefile->WriteBool( false );
@@ -3646,7 +3648,9 @@ void idPlayer::Restore( idRestoreGame* savefile )
 		}
 
 		savefile->ReadFloat( tempFloat );
+		shoulderWeaponLeft = (int) tempFloat;
 		savefile->ReadFloat( tempFloat );
+		shoulderWeaponRight = (int) tempFloat;
 		savefile->ReadFloat( tempFloat );
 		savefile->ReadFloat( tempFloat );
 		savefile->ReadBool( tempBool );
@@ -4078,6 +4082,8 @@ void idPlayer::SavePersistantInfo()
 
 	playerInfo.SetInt( "holsteredWeapon", holsteredWeapon );
 	playerInfo.SetInt( "extraHolsteredWeapon", extraHolsteredWeapon );
+	playerInfo.SetInt( "shoulderWeaponLeft", shoulderWeaponLeft );
+	playerInfo.SetInt( "shoulderWeaponRight", shoulderWeaponRight );
 	if ( holsterRenderEntity.hModel )
 	{
 		playerInfo.Set( "holsteredWeaponModel", holsterRenderEntity.hModel->Name() );
@@ -4116,6 +4122,8 @@ void idPlayer::RestorePersistantInfo()
 	
 	holsteredWeapon = spawnArgs.GetInt( "holsteredWeapon", "-1" );
 	extraHolsteredWeapon = spawnArgs.GetInt( "extraHolsteredWeapon", "-1" );
+	shoulderWeaponLeft = spawnArgs.GetInt( "shoulderWeaponLeft", "-1" );
+	shoulderWeaponRight = spawnArgs.GetInt( "shoulderWeaponRight", "-1" );
 
 	idStr hwm;
 
@@ -6091,6 +6099,100 @@ void idPlayer::GiveItem( const char* itemname )
 	gameLocal.SpawnEntityDef( args );
 }
 
+/*
+==================
+idPlayer::IsLongWeapon
+==================
+*/
+bool idPlayer::IsLongWeapon( int weaponNum ) const
+{
+	if ( weaponNum < 0 )
+	{
+		return false;
+	}
+	return (
+		weaponNum == weapon_shotgun ||
+		weaponNum == weapon_shotgun_double ||
+		weaponNum == weapon_machinegun ||
+		weaponNum == weapon_chaingun ||
+		weaponNum == weapon_plasmagun ||
+		weaponNum == weapon_rocketlauncher ||
+		weaponNum == weapon_bfg ||
+		weaponNum == weapon_chainsaw ||
+		weaponNum == weapon_grabber
+	);
+}
+
+/*
+==================
+idPlayer::HandleShoulderSlot
+==================
+*/
+bool idPlayer::HandleShoulderSlot( int slotIndex )
+{
+	if ( !commonVr->hasHMD || !weaponEnabled || spectating || hiddenWeapon || gameLocal.inCinematic || Flicksync_InCutscene || gameLocal.world->spawnArgs.GetBool( "no_Weapons" ) || health < 0 )
+	{
+		return false;
+	}
+
+	int& storedSlotWeapon = ( slotIndex == SLOT_SHOULDER_LEFT ) ? shoulderWeaponLeft : shoulderWeaponRight;
+	int curWeapon = currentWeapon;
+
+	// If player is holding an eligible primary long weapon: store it in this shoulder slot!
+	if ( IsLongWeapon( curWeapon ) )
+	{
+		int oldStored = storedSlotWeapon;
+		storedSlotWeapon = curWeapon;
+
+		// If a different valid long weapon was stored in this slot and player has it, switch to it; otherwise switch to fists
+		if ( oldStored > 0 && oldStored != curWeapon && ( inventory.weapons & ( 1 << oldStored ) ) != 0 )
+		{
+			SelectWeapon( oldStored, false, true );
+		}
+		else
+		{
+			SelectWeapon( weapon_fists, false, true );
+		}
+
+		SetControllerShake( vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2, vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2 );
+		return true;
+	}
+	else
+	{
+		// Player is reaching to shoulder with fists / sidearm / grenade -> DRAW the weapon stored at this shoulder!
+		int targetWeapon = storedSlotWeapon;
+
+		// If stored weapon is not owned or unassigned, fallback to default for that slot
+		if ( targetWeapon <= 0 || ( inventory.weapons & ( 1 << targetWeapon ) ) == 0 )
+		{
+			if ( slotIndex == SLOT_SHOULDER_LEFT )
+			{
+				if ( inventory.weapons & ( 1 << weapon_machinegun ) ) targetWeapon = weapon_machinegun;
+				else if ( inventory.weapons & ( 1 << weapon_plasmagun ) ) targetWeapon = weapon_plasmagun;
+				else if ( inventory.weapons & ( 1 << weapon_chainsaw ) ) targetWeapon = weapon_chainsaw;
+				else if ( inventory.weapons & ( 1 << weapon_chaingun ) ) targetWeapon = weapon_chaingun;
+			}
+			else
+			{
+				if ( inventory.weapons & ( 1 << weapon_shotgun ) ) targetWeapon = weapon_shotgun;
+				else if ( inventory.weapons & ( 1 << weapon_shotgun_double ) ) targetWeapon = weapon_shotgun_double;
+				else if ( inventory.weapons & ( 1 << weapon_rocketlauncher ) ) targetWeapon = weapon_rocketlauncher;
+				else if ( inventory.weapons & ( 1 << weapon_bfg ) ) targetWeapon = weapon_bfg;
+			}
+		}
+
+		if ( targetWeapon > 0 && ( inventory.weapons & ( 1 << targetWeapon ) ) != 0 )
+		{
+			storedSlotWeapon = targetWeapon;
+			SelectWeapon( targetWeapon, false, true );
+			SetControllerShake( vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2, vr_slotMag.GetFloat() * 1.5f, vr_slotDur.GetInteger() * 2 );
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool idPlayer::OtherHandImpulseSlot()
 {
 	if( !commonVr->hasHMD )
@@ -6166,13 +6268,10 @@ bool idPlayer::OtherHandImpulseSlot()
 		}
 		return true;
 	}
-	if ( otherHandSlot == SLOT_WEAPON_BACK_BOTTOM )
+	if ( otherHandSlot == SLOT_SHOULDER_LEFT )
 	{
-		SwapWeaponHand();
-		// Holster the PDA we are holding on the other side
 		if (!common->IsMultiplayer())
 		{
-			// we don't have a PDA, so toggle the menu instead
 			if ( commonVr->PDAforced )
 			{
 				PerformImpulse( 40 );
@@ -6182,16 +6281,12 @@ bool idPlayer::OtherHandImpulseSlot()
 				TogglePDA();
 			}
 		}
-		PrevWeapon();
-		return true;
+		return HandleShoulderSlot( SLOT_SHOULDER_LEFT );
 	}
-	if ( otherHandSlot == SLOT_WEAPON_BACK_TOP )
+	if ( otherHandSlot == SLOT_SHOULDER_RIGHT )
 	{
-		SwapWeaponHand();
-		// Holster the PDA we are holding on the other side
 		if (!common->IsMultiplayer())
 		{
-			// we don't have a PDA, so toggle the menu instead
 			if ( commonVr->PDAforced )
 			{
 				PerformImpulse(40);
@@ -6201,8 +6296,7 @@ bool idPlayer::OtherHandImpulseSlot()
 				TogglePDA();
 			}
 		}
-		NextWeapon();
-		return true;
+		return HandleShoulderSlot( SLOT_SHOULDER_RIGHT );
 	}
 	return false;
 }
@@ -6230,23 +6324,21 @@ bool idPlayer::WeaponHandImpulseSlot()
 		}
 		return true;
 	}
-	if( weaponHandSlot == SLOT_WEAPON_BACK_BOTTOM )
+	if( weaponHandSlot == SLOT_SHOULDER_LEFT )
 	{
 		if ( objectiveSystemOpen )
 		{
 			TogglePDA();
 		}
-		PrevWeapon();
-		return true;
+		return HandleShoulderSlot( SLOT_SHOULDER_LEFT );
 	}
-	if( weaponHandSlot == SLOT_WEAPON_BACK_TOP )
+	if( weaponHandSlot == SLOT_SHOULDER_RIGHT )
 	{
 		if ( objectiveSystemOpen )
 		{
 			TogglePDA();
 		}
-		NextWeapon();
-		return true;
+		return HandleShoulderSlot( SLOT_SHOULDER_RIGHT );
 	}
 	if ( weaponHandSlot == SLOT_PDA_HIP )
 	{
@@ -13627,7 +13719,7 @@ void idPlayer::Think()
 		for( int i = 0; i < SLOT_COUNT; i++ )
 		{
 			idVec3 slotOrigin = slots[i].origin;
-			if ( vr_weaponHand.GetInteger() && i != SLOT_FLASHLIGHT_SHOULDER )
+			if ( vr_weaponHand.GetInteger() && i != SLOT_FLASHLIGHT_SHOULDER && i != SLOT_SHOULDER_LEFT && i != SLOT_SHOULDER_RIGHT )
 				slotOrigin.y *= -1;
 			idVec3 origin = waistOrigin + slotOrigin * waistAxis;
 			idSphere tempSphere( origin, sqrtf(slots[i].radiusSq) );
@@ -16765,7 +16857,7 @@ void idPlayer::CalculateLeftHand()
 			for( int i = 0; i < SLOT_COUNT; i++ )
 			{
 				idVec3 slotOrigin = slots[i].origin;
-				if ( vr_weaponHand.GetInteger() && i != SLOT_FLASHLIGHT_SHOULDER )
+				if ( vr_weaponHand.GetInteger() && i != SLOT_FLASHLIGHT_SHOULDER && i != SLOT_SHOULDER_LEFT && i != SLOT_SHOULDER_RIGHT )
 					slotOrigin.y *= -1;
 				idVec3 origin = waistOrigin + slotOrigin * waistAxis;
 				if( (leftHandOrigin - origin).LengthSqr() < slots[i].radiusSq )
@@ -16814,7 +16906,7 @@ void idPlayer::CalculateRightHand()
 			for( int i = 0; i < SLOT_COUNT; i++ )
 			{
 				idVec3 slotOrigin = slots[i].origin;
-				if ( vr_weaponHand.GetInteger() && i != SLOT_FLASHLIGHT_SHOULDER )
+				if ( vr_weaponHand.GetInteger() && i != SLOT_FLASHLIGHT_SHOULDER && i != SLOT_SHOULDER_LEFT && i != SLOT_SHOULDER_RIGHT )
 					slotOrigin.y *= -1;
 				idVec3 origin = waistOrigin + slotOrigin * waistAxis;
 				if( (rightHandOrigin - origin).LengthSqr() < slots[i].radiusSq )
