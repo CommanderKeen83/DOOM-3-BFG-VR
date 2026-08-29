@@ -8643,7 +8643,9 @@ void idPlayer::UpdateFocus()
 				gameLocal.clip.TracePoint( offTrace, offHandPos, offEnd, MASK_SHOT_RENDERMODEL, this );
 				idVec3 offSurfaceNormal = ( offTrace.fraction < 1.0f ) ? -offTrace.c.normal : offHandAxis[0];
 
-				idVec3 offFingertip = offHandPos + offHandAxis[0] * 2.2f + offHandAxis[2] * 0.4f;
+				int offHand = 1 - vr_weaponHand.GetInteger();
+				float lateralOffset = ( offHand == 0 ) ? 0.85f : -0.85f;
+				idVec3 offFingertip = offHandPos + offHandAxis[0] * 2.2f + offHandAxis[1] * lateralOffset + offHandAxis[2] * 0.4f;
 				idVec3 offScanStart = offFingertip - 12.0f * offSurfaceNormal;
 				idVec3 offScanEnd = offFingertip + 1.0f * offSurfaceNormal;
 				guiPoint_t offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offScanStart, offScanEnd );
