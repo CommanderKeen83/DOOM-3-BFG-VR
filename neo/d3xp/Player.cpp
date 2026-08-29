@@ -8491,6 +8491,14 @@ void idPlayer::UpdateFocus()
 
 		ent->GetAnimator();
 		pt = gameRenderWorld->GuiTrace( ent->GetModelDefHandle(), ent->GetAnimator(), start, end ); // Koz
+		if ( pt.x == -1 && vr_guiMode.GetInteger() == 2 && commonVr->VR_USE_MOTION_CONTROLS )
+		{
+			idVec3 offStart = vec3_zero;
+			idMat3 offAxis = mat3_identity;
+			CalculateViewOffHandPosVR( offStart, offAxis );
+			idVec3 offEnd = offStart + offAxis[0] * scanRange;
+			pt = gameRenderWorld->GuiTrace( ent->GetModelDefHandle(), ent->GetAnimator(), offStart, offEnd );
+		}
 		if ( pt.x != -1 )
 		{
 			// we have a hit
@@ -8600,19 +8608,25 @@ void idPlayer::UpdateFocus()
 			else
 			{
 				// Check off-hand (free hand) touching GUI
-				gameLocal.clip.TracePoint( trace, start, end, MASK_SHOT_RENDERMODEL, this );
-				idVec3 surfaceNormal = -trace.c.normal;
-
 				idVec3 offHandPos = vec3_zero;
 				idMat3 offHandAxis = mat3_identity;
 				CalculateViewOffHandPosVR( offHandPos, offHandAxis );
+				idVec3 offEnd = offHandPos + offHandAxis[0] * scanRange;
+
+				trace_t offTrace;
+				gameLocal.clip.TracePoint( offTrace, offHandPos, offEnd, MASK_SHOT_RENDERMODEL, this );
+				idVec3 offSurfaceNormal = ( offTrace.fraction < 1.0f ) ? -offTrace.c.normal : offHandAxis[0];
+
 				idVec3 offFingertip = offHandPos + offHandAxis[0] * 4.0f;
-
-				idVec3 offScanStart = offFingertip - 12.0f * surfaceNormal;
-				idVec3 offScanEnd = offFingertip + 2.0f * surfaceNormal;
+				idVec3 offScanStart = offFingertip - 12.0f * offSurfaceNormal;
+				idVec3 offScanEnd = offFingertip + 2.0f * offSurfaceNormal;
 				guiPoint_t offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offScanStart, offScanEnd );
+				if ( offPt.x == -1 )
+				{
+					offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offFingertip - 2.0f * offHandAxis[0], offFingertip + 8.0f * offHandAxis[0] );
+				}
 
-				if ( offPt.fraction < 1.0f )
+				if ( offPt.fraction < 1.0f && offPt.x != -1 )
 				{
 					// Off-hand is touching / interacting with the screen!
 					focusTime = gameLocal.time + FOCUS_GUI_TIME;
