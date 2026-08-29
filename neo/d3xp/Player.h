@@ -358,6 +358,7 @@ public:
 	bool					aimValidForTeleport;
 	
 	bool			  		PDAfixed; // Koz has the PDA been fixed in space?
+	bool					offHandInGui;
 	idVec3					PDAorigin; // Koz 
 	idMat3					PDAaxis; // Koz
 

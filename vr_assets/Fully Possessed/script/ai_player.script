@@ -78,6 +78,7 @@ object player : player_base {
 	void		Flashlight_Hand_Off();
 	void		Flashlight_Hand_Fist();
 	void		Flashlight_Hand_Empty();
+	void		Flashlight_Hand_Gui();
 	
 	void		Weapon_Hand_Empty();
 	void		Weapon_Hand_Normal();
@@ -207,6 +208,11 @@ void player::SetFlashHandPose() {
 			
 		flashHandState = flashHandState & 15;
 			
+		if ( flashHandState == 4 )
+		{
+			animState( animHand, "Flashlight_Hand_Gui", 2 );
+		}
+
 		if ( flashHandState == 3)
 		{
 			animState( animHand, "Flashlight_Hand_Normal" , 1 ); 
@@ -1044,6 +1050,17 @@ void player::Flashlight_Hand_On() {
 		else
 		{
 			playAnim( ANIMCHANNEL_LEFTHAND, "flashlight_fire1" ); 
+		}
+}
+
+void player::Flashlight_Hand_Gui() {
+		if ( flashHand == 0 )
+		{
+			playAnim( ANIMCHANNEL_RIGHTHAND, "finger_gui" ); 
+		}
+		else
+		{
+			playAnim( ANIMCHANNEL_LEFTHAND, "finger_gui" ); 
 		}
 }
 

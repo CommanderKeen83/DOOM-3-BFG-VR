@@ -2165,6 +2165,7 @@ void idPlayer::Init()
 	hudActive = true;
 
 	PDAfixed = false;			
+	offHandInGui = false;
 	PDAorigin = vec3_zero;
 	PDAaxis = mat3_identity;
 	
@@ -7855,9 +7856,11 @@ void idPlayer::ClearFocus()
 
 	// Koz
 	commonVr->handInGui = false;
-	//weapon.GetEntity()->GetRenderEntity()->allowSurfaceInViewID = 0;
-
-
+	if ( offHandInGui )
+	{
+		offHandInGui = false;
+		SetFlashHandPose();
+	}
 }
 
 
@@ -8628,6 +8631,12 @@ void idPlayer::UpdateFocus()
 
 				if ( offPt.fraction < 1.0f && offPt.x != -1 )
 				{
+					if ( !offHandInGui )
+					{
+						offHandInGui = true;
+						SetFlashHandPose();
+					}
+
 					// Off-hand is touching / interacting with the screen!
 					focusTime = gameLocal.time + FOCUS_GUI_TIME;
 
@@ -8683,6 +8692,14 @@ void idPlayer::UpdateFocus()
 							}
 							break;
 						}
+					}
+				}
+				else
+				{
+					if ( offHandInGui )
+					{
+						offHandInGui = false;
+						SetFlashHandPose();
 					}
 				}
 
@@ -18118,7 +18135,11 @@ void idPlayer::Event_GetFlashHandState()
 	
 	int flashHand = 0;
 	
-	if ( weapon->IdentifyWeapon() == WEAPON_PDA )
+	if ( offHandInGui )
+	{
+		flashHand = 4;
+	}
+	else if ( weapon->IdentifyWeapon() == WEAPON_PDA )
 	{
 		flashHand = 3;
 	}
