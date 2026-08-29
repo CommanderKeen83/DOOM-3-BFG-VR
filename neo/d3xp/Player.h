@@ -702,6 +702,7 @@ public:
 	void					CalculateViewWeaponPos( idVec3& origin, idMat3& axis );
 	void					CalculateViewWeaponPosVR( idVec3& origin, idMat3& axis );
 	void 					CalculateViewMainHandPosVR( idVec3& origin, idMat3& axis );
+	void 					CalculateViewOffHandPosVR( idVec3& origin, idMat3& axis );
 
 	void					SetHandIKPos( int hand, idVec3 handOrigin, idMat3 handAxis, idQuat rotation, bool isFlashlight = false );
 

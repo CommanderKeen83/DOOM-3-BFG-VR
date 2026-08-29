@@ -8374,6 +8374,15 @@ void idPlayer::UpdateFocus()
 	
 	idBounds bounds( start );
 	bounds.AddPoint( end );
+
+	if ( vr_guiMode.GetInteger() == 2 && commonVr->VR_USE_MOTION_CONTROLS )
+	{
+		idVec3 offStart = vec3_zero;
+		idMat3 offAxis = mat3_identity;
+		CalculateViewOffHandPosVR( offStart, offAxis );
+		bounds.AddPoint( offStart + offAxis[0] * 24.0f );
+		bounds.AddPoint( offStart );
+	}
 	
 	listedClipModels = gameLocal.clip.ClipModelsTouchingBounds( bounds, -1, clipModelList, MAX_GENTITIES );
 	// no pretense at sorting here, just assume that there will only be one active
@@ -8590,6 +8599,79 @@ void idPlayer::UpdateFocus()
 			}
 			else
 			{
+				// Check off-hand (free hand) touching GUI
+				gameLocal.clip.TracePoint( trace, start, end, MASK_SHOT_RENDERMODEL, this );
+				idVec3 surfaceNormal = -trace.c.normal;
+
+				idVec3 offHandPos = vec3_zero;
+				idMat3 offHandAxis = mat3_identity;
+				CalculateViewOffHandPosVR( offHandPos, offHandAxis );
+				idVec3 offFingertip = offHandPos + offHandAxis[0] * 4.0f;
+
+				idVec3 offScanStart = offFingertip - 12.0f * surfaceNormal;
+				idVec3 offScanEnd = offFingertip + 2.0f * surfaceNormal;
+				guiPoint_t offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offScanStart, offScanEnd );
+
+				if ( offPt.fraction < 1.0f )
+				{
+					// Off-hand is touching / interacting with the screen!
+					focusTime = gameLocal.time + FOCUS_GUI_TIME;
+
+					if ( touching )
+					{
+						if ( offPt.fraction >= 0.94f )
+						{
+							ev = sys->GenerateMouseButtonEvent( 1, false );
+							command = focusUI->HandleEvent( &ev, gameLocal.time );
+							HandleGuiCommands( focusGUIent, command );
+							touching = false;
+							break;
+						}
+						else if ( offPt.x != -1 )
+						{
+							ev = sys->GenerateMouseMoveEvent( -2000, -2000 );
+							command = focusUI->HandleEvent( &ev, gameLocal.time );
+							HandleGuiCommands( focusGUIent, command );
+
+							ev = sys->GenerateMouseMoveEvent( offPt.x * SCREEN_WIDTH, offPt.y * SCREEN_HEIGHT );
+							command = focusUI->HandleEvent( &ev, gameLocal.time );
+							HandleGuiCommands( focusGUIent, command );
+							break;
+						}
+					}
+					else
+					{
+						if ( offPt.fraction < 0.94f && offPt.x != -1 )
+						{
+							touching = true;
+
+							ev = sys->GenerateMouseMoveEvent( -2000, -2000 );
+							command = focusUI->HandleEvent( &ev, gameLocal.time );
+							HandleGuiCommands( focusGUIent, command );
+
+							ev = sys->GenerateMouseMoveEvent( offPt.x * SCREEN_WIDTH, offPt.y * SCREEN_HEIGHT );
+							command = focusUI->HandleEvent( &ev, gameLocal.time );
+							HandleGuiCommands( focusGUIent, command );
+
+							ev = sys->GenerateMouseButtonEvent( 1, true );
+							command = focusUI->HandleEvent( &ev, gameLocal.time );
+							HandleGuiCommands( focusGUIent, command );
+
+							// Rumble off-hand controller
+							int offHand = 1 - vr_weaponHand.GetInteger();
+							if ( offHand == 0 )
+							{
+								SetControllerShake( 0.0f, 0, 0.8f, 15 );
+							}
+							else
+							{
+								SetControllerShake( 0.8f, 15, 0.0f, 0 );
+							}
+							break;
+						}
+					}
+				}
+
 				// the game is vr, player is using motion controls, gui mode is set to use touchscreens
 				// and the view has found a gui to interact with.
 				// wait for lower weapon to drop the hand to hidedistance and hide the weapon model
@@ -15567,6 +15649,47 @@ void idPlayer::CalculateViewMainHandPosVR(idVec3& origin, idMat3& axis)
 
 		axis = weapAxis;
 		origin = weapOrigin;
+	}
+}
+
+void idPlayer::CalculateViewOffHandPosVR( idVec3& origin, idMat3& axis )
+{
+	int currentHand = 1 - vr_weaponHand.GetInteger();
+
+	if ( commonVr->VR_USE_MOTION_CONTROLS )
+	{
+		idVec3 motionPosition = vec3_zero;
+		idQuat motionRotation;
+
+		idQuat flashPitch = idAngles( vr_motionFlashPitchAdj.GetFloat(), 0.0f, 0.0f ).ToQuat();
+
+		commonVr->MotionControlGetHand( currentHand, motionPosition, motionRotation );
+		motionRotation = flashPitch * motionRotation;
+
+		idVec3 handOrigin = vec3_zero;
+		idMat3 handAxis = mat3_identity;
+		GetViewPos( handOrigin, handAxis );
+
+		handOrigin += commonVr->leanOffset;
+
+		idVec3 headPositionDelta = commonVr->poseHmdHeadPositionDelta;
+
+		handAxis = idAngles( 0.0f, handAxis.ToAngles().yaw - commonVr->bodyYawOffset, 0.0f ).ToMat3();
+		handOrigin += handAxis[0] * headPositionDelta.x + handAxis[1] * headPositionDelta.y + handAxis[2] * headPositionDelta.z;
+
+		handOrigin += motionPosition * handAxis;
+		handAxis = motionRotation.ToMat3() * handAxis;
+
+		const idVec3 flashPosHack[2] = { idVec3( 0.0f, -1.0f, 0.5f ), idVec3( 0.0f, 0.85f, 0.5f ) };
+		handOrigin += flashPosHack[currentHand] * handAxis;
+
+		axis = handAxis;
+		origin = handOrigin;
+	}
+	else
+	{
+		origin = GetEyePosition();
+		axis = firstPersonViewAxis;
 	}
 }
 
