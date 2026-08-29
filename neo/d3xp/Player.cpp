@@ -8647,11 +8647,11 @@ void idPlayer::UpdateFocus()
 				idVec3 offSurfaceNormal = ( offTrace.fraction < 1.0f ) ? -offTrace.c.normal : offHandAxis[0];
 
 				int offHand = 1 - vr_weaponHand.GetInteger();
-				float lateralSign = ( offHand == 0 ) ? -1.0f : 1.0f;
+				float lateralSign = ( offHand == 0 ) ? -0.75f : 0.75f;
 				idVec3 offFingertip = offHandPos 
-					+ offHandAxis[0] * vr_offHandTouchForward.GetFloat() 
-					+ offHandAxis[1] * (vr_offHandTouchLateral.GetFloat() * lateralSign) 
-					+ offHandAxis[2] * vr_offHandTouchVertical.GetFloat();
+					+ offHandAxis[0] * 2.2f 
+					+ offHandAxis[1] * lateralSign 
+					+ offHandAxis[2] * 0.4f;
 
 				const float fForwDist = 1.0f;
 				const float fBackwDist = 12.0f;
