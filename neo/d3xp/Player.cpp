@@ -63,6 +63,9 @@ idCVar pm_clientAuthoritative_minSpeedSquared( "pm_clientAuthoritative_minSpeedS
 idCVar vr_wipScale( "vr_wipScale", "1.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
 
 idCVar vr_debugGui( "vr_debugGui", "0", CVAR_BOOL, "" );
+idCVar vr_offHandTouchForward( "vr_offHandTouchForward", "2.2", CVAR_FLOAT | CVAR_ARCHIVE, "Forward offset from wrist for off-hand fingertip touch ray" );
+idCVar vr_offHandTouchLateral( "vr_offHandTouchLateral", "-0.45", CVAR_FLOAT | CVAR_ARCHIVE, "Lateral offset from wrist for off-hand fingertip touch ray (towards index finger)" );
+idCVar vr_offHandTouchVertical( "vr_offHandTouchVertical", "0.4", CVAR_FLOAT | CVAR_ARCHIVE, "Vertical offset from wrist for off-hand fingertip touch ray" );
 idCVar vr_guiFocusPitchAdj( "vr_guiFocusPitchAdj", "7", CVAR_FLOAT | CVAR_ARCHIVE, "View pitch adjust to help activate in game Talk to NPC" );
 
 idCVar vr_bx1( "vr_bx1", "5", CVAR_FLOAT, "");
@@ -8643,17 +8646,25 @@ void idPlayer::UpdateFocus()
 				gameLocal.clip.TracePoint( offTrace, offHandPos, offEnd, MASK_SHOT_RENDERMODEL, this );
 				idVec3 offSurfaceNormal = ( offTrace.fraction < 1.0f ) ? -offTrace.c.normal : offHandAxis[0];
 
-				jointHandle_t offFingerJoint = ( vr_weaponHand.GetInteger() == 0 ) ? animator.GetJointHandle( "LindexTip" ) : animator.GetJointHandle( "RindexTip" );
-				idVec3 offFingerPosLocal = vec3_zero;
-				idMat3 offFingerAxisLocal = mat3_identity;
-				animator.GetJointTransform( offFingerJoint, gameLocal.time, offFingerPosLocal, offFingerAxisLocal );
-				idVec3 offFingertip = offFingerPosLocal * GetRenderEntity()->axis + GetRenderEntity()->origin;
+				int offHand = 1 - vr_weaponHand.GetInteger();
+				float lateralSign = ( offHand == 0 ) ? -1.0f : 1.0f;
+				idVec3 offFingertip = offHandPos 
+					+ offHandAxis[0] * vr_offHandTouchForward.GetFloat() 
+					+ offHandAxis[1] * (vr_offHandTouchLateral.GetFloat() * lateralSign) 
+					+ offHandAxis[2] * vr_offHandTouchVertical.GetFloat();
 
 				const float fForwDist = 1.0f;
 				const float fBackwDist = 12.0f;
 
 				idVec3 offScanStart = offFingertip - fBackwDist * offSurfaceNormal;
 				idVec3 offScanEnd = offFingertip + fForwDist * offSurfaceNormal;
+
+				if ( vr_debugGui.GetBool() )
+				{
+					gameRenderWorld->DebugLine( colorGreen, offScanStart, offScanEnd, 20, true );
+					gameRenderWorld->DebugLine( colorRed, offFingertip - offHandAxis[1] * 0.5f, offFingertip + offHandAxis[1] * 0.5f, 20, true );
+				}
+
 				guiPoint_t offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offScanStart, offScanEnd );
 				if ( offPt.x == -1 )
 				{
