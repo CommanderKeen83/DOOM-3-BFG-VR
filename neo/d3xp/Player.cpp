@@ -8501,6 +8501,11 @@ void idPlayer::UpdateFocus()
 			CalculateViewOffHandPosVR( offStart, offAxis );
 			idVec3 offEnd = offStart + offAxis[0] * scanRange;
 			pt = gameRenderWorld->GuiTrace( ent->GetModelDefHandle(), ent->GetAnimator(), offStart, offEnd );
+			if ( pt.x != -1 && !offHandInGui )
+			{
+				offHandInGui = true;
+				SetFlashHandPose();
+			}
 		}
 		if ( pt.x != -1 )
 		{
@@ -8620,13 +8625,13 @@ void idPlayer::UpdateFocus()
 				gameLocal.clip.TracePoint( offTrace, offHandPos, offEnd, MASK_SHOT_RENDERMODEL, this );
 				idVec3 offSurfaceNormal = ( offTrace.fraction < 1.0f ) ? -offTrace.c.normal : offHandAxis[0];
 
-				idVec3 offFingertip = offHandPos + offHandAxis[0] * 4.0f;
+				idVec3 offFingertip = offHandPos + offHandAxis[0] * 2.2f + offHandAxis[2] * 0.4f;
 				idVec3 offScanStart = offFingertip - 12.0f * offSurfaceNormal;
-				idVec3 offScanEnd = offFingertip + 2.0f * offSurfaceNormal;
+				idVec3 offScanEnd = offFingertip + 1.0f * offSurfaceNormal;
 				guiPoint_t offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offScanStart, offScanEnd );
 				if ( offPt.x == -1 )
 				{
-					offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offFingertip - 2.0f * offHandAxis[0], offFingertip + 8.0f * offHandAxis[0] );
+					offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offFingertip - 12.0f * offHandAxis[0], offFingertip + 1.0f * offHandAxis[0] );
 				}
 
 				if ( offPt.fraction < 1.0f && offPt.x != -1 )
