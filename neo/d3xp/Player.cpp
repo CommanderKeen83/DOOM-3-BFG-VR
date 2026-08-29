@@ -63,8 +63,8 @@ idCVar pm_clientAuthoritative_minSpeedSquared( "pm_clientAuthoritative_minSpeedS
 idCVar vr_wipScale( "vr_wipScale", "1.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
 
 idCVar vr_debugGui( "vr_debugGui", "0", CVAR_BOOL, "" );
-idCVar vr_offHandTouchForward( "vr_offHandTouchForward", "2.2", CVAR_FLOAT | CVAR_ARCHIVE, "Forward offset from wrist for off-hand fingertip touch ray" );
-idCVar vr_offHandTouchLateral( "vr_offHandTouchLateral", "-0.45", CVAR_FLOAT | CVAR_ARCHIVE, "Lateral offset from wrist for off-hand fingertip touch ray (towards index finger)" );
+idCVar vr_offHandTouchForward( "vr_offHandTouchForward", "3.8", CVAR_FLOAT | CVAR_ARCHIVE, "Forward offset from wrist for off-hand fingertip touch ray" );
+idCVar vr_offHandTouchLateral( "vr_offHandTouchLateral", "0.75", CVAR_FLOAT | CVAR_ARCHIVE, "Lateral offset from wrist for off-hand fingertip touch ray (towards index finger)" );
 idCVar vr_offHandTouchVertical( "vr_offHandTouchVertical", "0.4", CVAR_FLOAT | CVAR_ARCHIVE, "Vertical offset from wrist for off-hand fingertip touch ray" );
 idCVar vr_guiFocusPitchAdj( "vr_guiFocusPitchAdj", "7", CVAR_FLOAT | CVAR_ARCHIVE, "View pitch adjust to help activate in game Talk to NPC" );
 
@@ -8647,11 +8647,11 @@ void idPlayer::UpdateFocus()
 				idVec3 offSurfaceNormal = ( offTrace.fraction < 1.0f ) ? -offTrace.c.normal : offHandAxis[0];
 
 				int offHand = 1 - vr_weaponHand.GetInteger();
-				float lateralSign = ( offHand == 0 ) ? -0.75f : 0.75f;
+				float lateralSign = ( offHand == 0 ) ? -vr_offHandTouchLateral.GetFloat() : vr_offHandTouchLateral.GetFloat();
 				idVec3 offFingertip = offHandPos 
-					+ offHandAxis[0] * 2.6f 
+					+ offHandAxis[0] * vr_offHandTouchForward.GetFloat() 
 					+ offHandAxis[1] * lateralSign 
-					+ offHandAxis[2] * 0.4f;
+					+ offHandAxis[2] * vr_offHandTouchVertical.GetFloat();
 
 				const float fForwDist = 1.0f;
 				const float fBackwDist = 12.0f;
