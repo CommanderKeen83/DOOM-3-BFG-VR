@@ -63,9 +63,9 @@ idCVar pm_clientAuthoritative_minSpeedSquared( "pm_clientAuthoritative_minSpeedS
 idCVar vr_wipScale( "vr_wipScale", "1.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
 
 idCVar vr_debugGui( "vr_debugGui", "0", CVAR_BOOL, "" );
-idCVar vr_offHandTouchForward( "vr_offHandTouchForward", "4.6", CVAR_FLOAT | CVAR_ARCHIVE, "Forward offset from wrist for off-hand fingertip touch ray" );
-idCVar vr_offHandTouchLateral( "vr_offHandTouchLateral", "0.75", CVAR_FLOAT | CVAR_ARCHIVE, "Lateral offset from wrist for off-hand fingertip touch ray (towards index finger)" );
-idCVar vr_offHandTouchVertical( "vr_offHandTouchVertical", "0.4", CVAR_FLOAT | CVAR_ARCHIVE, "Vertical offset from wrist for off-hand fingertip touch ray" );
+idCVar vr_offHandTouchForward( "vr_offHandTouchForward", "5.5", CVAR_FLOAT, "Forward offset from wrist for off-hand fingertip touch ray" );
+idCVar vr_offHandTouchLateral( "vr_offHandTouchLateral", "1.5", CVAR_FLOAT, "Lateral offset from wrist for off-hand fingertip touch ray (towards index finger)" );
+idCVar vr_offHandTouchVertical( "vr_offHandTouchVertical", "0.6", CVAR_FLOAT, "Vertical offset from wrist for off-hand fingertip touch ray" );
 idCVar vr_guiFocusPitchAdj( "vr_guiFocusPitchAdj", "7", CVAR_FLOAT | CVAR_ARCHIVE, "View pitch adjust to help activate in game Talk to NPC" );
 
 idCVar vr_bx1( "vr_bx1", "5", CVAR_FLOAT, "");
