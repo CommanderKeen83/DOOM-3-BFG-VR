@@ -8643,15 +8643,21 @@ void idPlayer::UpdateFocus()
 				gameLocal.clip.TracePoint( offTrace, offHandPos, offEnd, MASK_SHOT_RENDERMODEL, this );
 				idVec3 offSurfaceNormal = ( offTrace.fraction < 1.0f ) ? -offTrace.c.normal : offHandAxis[0];
 
-				int offHand = 1 - vr_weaponHand.GetInteger();
-				float lateralOffset = ( offHand == 0 ) ? 0.85f : -0.85f;
-				idVec3 offFingertip = offHandPos + offHandAxis[0] * 2.2f + offHandAxis[1] * lateralOffset + offHandAxis[2] * 0.4f;
-				idVec3 offScanStart = offFingertip - 12.0f * offSurfaceNormal;
-				idVec3 offScanEnd = offFingertip + 1.0f * offSurfaceNormal;
+				jointHandle_t offFingerJoint = ( vr_weaponHand.GetInteger() == 0 ) ? animator.GetJointHandle( "LindexTip" ) : animator.GetJointHandle( "RindexTip" );
+				idVec3 offFingerPosLocal = vec3_zero;
+				idMat3 offFingerAxisLocal = mat3_identity;
+				animator.GetJointTransform( offFingerJoint, gameLocal.time, offFingerPosLocal, offFingerAxisLocal );
+				idVec3 offFingertip = offFingerPosLocal * GetRenderEntity()->axis + GetRenderEntity()->origin;
+
+				const float fForwDist = 1.0f;
+				const float fBackwDist = 12.0f;
+
+				idVec3 offScanStart = offFingertip - fBackwDist * offSurfaceNormal;
+				idVec3 offScanEnd = offFingertip + fForwDist * offSurfaceNormal;
 				guiPoint_t offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offScanStart, offScanEnd );
 				if ( offPt.x == -1 )
 				{
-					offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offFingertip - 12.0f * offHandAxis[0], offFingertip + 1.0f * offHandAxis[0] );
+					offPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offFingertip - fBackwDist * offHandAxis[0], offFingertip + fForwDist * offHandAxis[0] );
 				}
 
 				if ( offPt.fraction < 1.0f && offPt.x != -1 )
