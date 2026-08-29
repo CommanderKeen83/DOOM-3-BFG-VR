@@ -8615,11 +8615,29 @@ void idPlayer::UpdateFocus()
 			}
 			else
 			{
-				// Check off-hand (free hand) touching GUI
+				// Check off-hand (free hand) approaching / touching GUI
 				idVec3 offHandPos = vec3_zero;
 				idMat3 offHandAxis = mat3_identity;
 				CalculateViewOffHandPosVR( offHandPos, offHandAxis );
 				idVec3 offEnd = offHandPos + offHandAxis[0] * scanRange;
+
+				guiPoint_t offAimPt = gameRenderWorld->GuiTrace( focusGUIent->GetModelDefHandle(), focusGUIent->GetAnimator(), offHandPos, offEnd );
+				if ( offAimPt.x != -1 )
+				{
+					if ( !offHandInGui )
+					{
+						offHandInGui = true;
+						SetFlashHandPose();
+					}
+				}
+				else
+				{
+					if ( offHandInGui )
+					{
+						offHandInGui = false;
+						SetFlashHandPose();
+					}
+				}
 
 				trace_t offTrace;
 				gameLocal.clip.TracePoint( offTrace, offHandPos, offEnd, MASK_SHOT_RENDERMODEL, this );
@@ -8636,12 +8654,6 @@ void idPlayer::UpdateFocus()
 
 				if ( offPt.fraction < 1.0f && offPt.x != -1 )
 				{
-					if ( !offHandInGui )
-					{
-						offHandInGui = true;
-						SetFlashHandPose();
-					}
-
 					// Off-hand is touching / interacting with the screen!
 					focusTime = gameLocal.time + FOCUS_GUI_TIME;
 
@@ -8697,14 +8709,6 @@ void idPlayer::UpdateFocus()
 							}
 							break;
 						}
-					}
-				}
-				else
-				{
-					if ( offHandInGui )
-					{
-						offHandInGui = false;
-						SetFlashHandPose();
 					}
 				}
 
