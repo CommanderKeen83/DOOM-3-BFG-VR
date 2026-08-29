@@ -8649,7 +8649,7 @@ void idPlayer::UpdateFocus()
 				int offHand = 1 - vr_weaponHand.GetInteger();
 				float lateralSign = ( offHand == 0 ) ? -0.75f : 0.75f;
 				idVec3 offFingertip = offHandPos 
-					+ offHandAxis[0] * 2.2f 
+					+ offHandAxis[0] * 2.6f 
 					+ offHandAxis[1] * lateralSign 
 					+ offHandAxis[2] * 0.4f;
 
