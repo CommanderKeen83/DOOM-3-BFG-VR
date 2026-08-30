@@ -133,8 +133,8 @@ idCVar	vr_weaponSightToSurface( "vr_weaponSightToSurface", "1", CVAR_INTEGER | C
 idCVar	vr_motionWeaponPitchAdj( "vr_motionWeaponPitchAdj", "40", CVAR_FLOAT | CVAR_ARCHIVE, "Weapon controller pitch adjust" );
 idCVar	vr_motionFlashPitchAdj( "vr_motionFlashPitchAdj", "40", CVAR_FLOAT | CVAR_ARCHIVE, "Flashlight controller pitch adjust" );
 
-idCVar	vr_nodalX( "vr_nodalX", "-3", CVAR_FLOAT | CVAR_ARCHIVE, "Forward offset from eyes to neck" );
-idCVar	vr_nodalZ( "vr_nodalZ", "-6", CVAR_FLOAT | CVAR_ARCHIVE, "Vertical offset from neck to eye height" );
+idCVar	vr_nodalX( "vr_nodalX", "-11", CVAR_FLOAT | CVAR_ARCHIVE, "Forward offset from eyes to neck" );
+idCVar	vr_nodalZ( "vr_nodalZ", "-5", CVAR_FLOAT | CVAR_ARCHIVE, "Vertical offset from neck to eye height" );
 
 
 idCVar vr_vcx( "vr_vcx", "-3.5", CVAR_FLOAT | CVAR_ARCHIVE, "Controller X offset to handle center" ); // these values work for steam
